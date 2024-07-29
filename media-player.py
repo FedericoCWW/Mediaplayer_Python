@@ -1,4 +1,6 @@
- #ver para que ponga audio tambien
+# ver para que ponga audio tambien
+# arreglar error linea 151
+# averiguar errores en compilador: [vp8 @ 000001bbdc8bd200] get_buffer() failed [vp8 @ 000001bbdc8bd200] thread_get_buffer() failed
 
 import tkinter as tk
 import vlc
@@ -8,9 +10,15 @@ from datetime import timedelta
 class MediaPlayer(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title('Music Player')
-        self.geometry('600x400')
-        self.configure(bg='white')
+        self.menubar = tk.Menu(self)
+        self.filemenu = tk.Menu(self.menubar, tearoff=0)
+        self.filemenu.add_command(label="Open file", command=self.select_file)
+        self.filemenu.add_command(label="Exit", command=self.exit)
+        self.menubar.add_cascade(label="File", menu=self.filemenu)
+        self.config(menu=self.menubar)
+        self.title('Media Player')
+        self.geometry('800x600')
+        self.configure(bg='gray')
         self.init_player()
     def init_player(self):
         self.instance = vlc.Instance()
@@ -90,7 +98,7 @@ class MediaPlayer(tk.Tk):
         self.progress_bar.pack(fill=tk.X, padx=10, pady=5)
     def select_file(self):
         file_path = filedialog.askopenfilename(
-            filetypes=[("Media Files", "*.mp4 *.avi")]                         
+            filetypes=[("Media Files", "*")]                         
         )
         if file_path:
             self.current_file = file_path
@@ -142,12 +150,18 @@ class MediaPlayer(tk.Tk):
         if self.playing_video:
             total_duration = self.media_player.get_length()
             current_time = self.media_player.get_time()
+            print(current_time)
+            print(total_duration)
             progress_percentage = (current_time / total_duration) * 100
             self.progress_bar.set(progress_percentage)
             current_time_str = str(timedelta(milliseconds=current_time))[:-3]
             total_duration_str = str(timedelta(milliseconds=total_duration))[:-3]
             self.time_label.config(text=f"{current_time_str}/{total_duration_str}")
         self.after(1000, self.update_video_progress)
+    #write a function that exist the application
+    def exit(self):
+        self.quit()
+
 
 class VideoProgressBar(tk.Scale):
     def __init__(self, master, command, **kwargs):
